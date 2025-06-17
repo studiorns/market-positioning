@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abu Dhabi Multi-Market Positioning Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #441643;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+            color: #e0d4e0;
+            text-align: center;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        
+        .controls-panel {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .controls-section {
+            margin-bottom: 25px;
+        }
+        
+        .controls-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #e0d4e0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+        
+        .bulk-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .bulk-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .bulk-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .regional-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .regional-btn {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .regional-btn:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .regional-btn.active {
+            background-color: rgba(255, 107, 107, 0.2);
+            border-color: rgba(255, 107, 107, 0.5);
+        }
+        
+        .markets-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .markets-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .markets-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .markets-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .market-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .market-item:last-child {
+            border-bottom: none;
+        }
+        
+        .market-checkbox {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        
+        .market-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .market-name {
+            font-size: 0.9rem;
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        .chart-container {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 700px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 600px;
+            width: 100%;
+        }
+        
+        .chart-info {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .theme-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            font-size: 0.85rem;
+        }
+        
+        .legend-item.safety { border-left-color: #ff6b6b; }
+        .legend-item.hospitality { border-left-color: #4ecdc4; }
+        .legend-item.culture { border-left-color: #45b7d1; }
+        .legend-item.luxury { border-left-color: #f9ca24; }
+        .legend-item.nature { border-left-color: #6c5ce7; }
+        .legend-item.connectivity { border-left-color: #a0e7e5; }
+        .legend-item.social { border-left-color: #ffeaa7; }
+        
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .controls-panel {
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                padding: 20px;
+            }
+            
+            .chart-wrapper {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Abu Dhabi Multi-Market Positioning</h1>
+        <p class="subtitle">Comparative Spider Graph Analysis - All Markets Overlay</p>
+        
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="controls-section">
+                    <div class="section-title">Quick Controls</div>
+                    <div class="bulk-controls">
+                        <button class="bulk-btn" id="selectAll">Select All</button>
+                        <button class="bulk-btn" id="deselectAll">Deselect All</button>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <div class="section-title">Regional Groups</div>
+                    <div class="regional-groups">
+                        <button class="regional-btn" data-region="north-america">North America (2)</button>
+                        <button class="regional-btn" data-region="regional">Regional (7)</button>
+                        <button class="regional-btn" data-region="western-europe">Western Europe (6)</button>
+                        <button class="regional-btn" data-region="eastern-europe">Eastern Europe (6)</button>
+                        <button class="regional-btn" data-region="asia">Asia (3)</button>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <div class="section-title">Markets (<span id="activeCount">0</span>/25)</div>
+                    <div class="markets-list" id="marketsList">
+                        <!-- Markets will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgScore">0</div>
+                        <div class="stat-label">Avg Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="strongestTheme">-</div>
+                        <div class="stat-label">Strongest Theme</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                
+                <div class="chart-info">
+                    <strong>Instructions:</strong> Use the controls on the left to show/hide markets. Click regional groups to quickly select market clusters. Hover over the chart to see individual market details.
+                </div>
+                
+                <div class="theme-legend">
+                    <div class="legend-item safety">
+                        <div class="legend-title">Safety & Trust</div>
+                    </div>
+                    <div class="legend-item hospitality">
+                        <div class="legend-title">Hospitality & Inclusiveness</div>
+                    </div>
+                    <div class="legend-item culture">
+                        <div class="legend-title">Culture & Heritage</div>
+                    </div>
+                    <div class="legend-item luxury">
+                        <div class="legend-title">Luxury & Experiences</div>
+                    </div>
+                    <div class="legend-item nature">
+                        <div class="legend-title">Natural Beauty & Recreation</div>
+                    </div>
+                    <div class="legend-item connectivity">
+                        <div class="legend-title">Connectivity & Accessibility</div>
+                    </div>
+                    <div class="legend-item social">
+                        <div class="legend-title">Social Values & Modernity</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Regional Aggregated Spider Graph Section - Full Width -->
+        <div class="regional-section">
+            <div class="chart-container">
+                <h2 style="color: white; text-align: center; margin-bottom: 20px; font-size: 1.8rem;">Regional Aggregated Analysis</h2>
+                
+                <div class="regional-controls" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
+                    <button class="regional-toggle-btn active" data-region="north-america" style="background-color: #f9ca24; color: #000;">North America</button>
+                    <button class="regional-toggle-btn active" data-region="regional" style="background-color: #ff6b6b; color: #fff;">Regional</button>
+                    <button class="regional-toggle-btn active" data-region="western-europe" style="background-color: #4ecdc4; color: #000;">Western Europe</button>
+                    <button class="regional-toggle-btn active" data-region="eastern-europe" style="background-color: #a0e7e5; color: #000;">Eastern Europe</button>
+                    <button class="regional-toggle-btn active" data-region="asia" style="background-color: #ffeaa7; color: #000;">Asia</button>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+                
+                <div class="regional-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-number" id="topRegion">-</div>
+                        <div class="stat-label">Strongest Region</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="topThemeRegional">-</div>
+                        <div class="stat-label">Strongest Theme</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgRegionalScore">0</div>
+                        <div class="stat-label">Overall Average</div>
+                    </div>
+                </div>
+                
+                <div class="chart-info">
+                    <strong>Regional Analysis:</strong> This chart shows Abu Dhabi's average positioning across each regional group. Each line represents the aggregated performance of all markets within that region across the 7 strategic themes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .regional-toggle-btn {
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+        
+        .regional-toggle-btn:not(.active) {
+            opacity: 0.4;
+            filter: grayscale(50%);
+        }
+        
+        .regional-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+
+    <script>
+        // Market data with colors and regional groupings
+        const marketData = {
+            egypt: { name: "Egypt", scores: [100, 100, 60, 80, 80, 100, 80], color: "#ff6b6b", region: "regional" },
+            bahrain: { name: "Bahrain", scores: [100, 100, 100, 60, 60, 100, 80], color: "#4ecdc4", region: "regional" },
+            belgium: { name: "Belgium", scores: [60, 100, 80, 100, 100, 60, 80], color: "#45b7d1", region: "western-europe" },
+            canada: { name: "Canada", scores: [80, 80, 80, 80, 100, 100, 60], color: "#f9ca24", region: "north-america" },
+            uzbekistan: { name: "Uzbekistan", scores: [80, 60, 60, 100, 80, 100, 100], color: "#6c5ce7", region: "eastern-europe" },
+            spain: { name: "Spain", scores: [100, 100, 100, 100, 100, 60, 80], color: "#a0e7e5", region: "western-europe" },
+            "south-korea": { name: "South Korea", scores: [100, 100, 100, 60, 60, 60, 80], color: "#ffeaa7", region: "asia" },
+            japan: { name: "Japan", scores: [60, 100, 80, 60, 80, 100, 80], color: "#fd79a8", region: "asia" },
+            armenia: { name: "Armenia", scores: [100, 60, 80, 100, 60, 100, 60], color: "#fdcb6e", region: "eastern-europe" },
+            qatar: { name: "Qatar", scores: [100, 100, 80, 100, 60, 60, 100], color: "#e17055", region: "regional" },
+            poland: { name: "Poland", scores: [60, 100, 100, 60, 60, 60, 80], color: "#74b9ff", region: "eastern-europe" },
+            oman: { name: "Oman", scores: [60, 100, 60, 80, 60, 100, 100], color: "#00b894", region: "regional" },
+            netherlands: { name: "Netherlands", scores: [60, 100, 100, 100, 100, 60, 80], color: "#e84393", region: "western-europe" },
+            kazakhstan: { name: "Kazakhstan", scores: [60, 100, 60, 100, 60, 80, 100], color: "#00cec9", region: "eastern-europe" },
+            usa: { name: "USA", scores: [60, 100, 60, 60, 100, 60, 80], color: "#6c5ce7", region: "north-america" },
+            russia: { name: "Russia", scores: [60, 100, 60, 100, 60, 80, 100], color: "#a29bfe", region: "eastern-europe" },
+            romania: { name: "Romania", scores: [100, 100, 60, 100, 60, 60, 80], color: "#fd79a8", region: "eastern-europe" },
+            kuwait: { name: "Kuwait", scores: [60, 60, 100, 80, 80, 100, 80], color: "#fdcb6e", region: "regional" },
+            india: { name: "India", scores: [100, 100, 100, 100, 60, 60, 60], color: "#e17055", region: "regional" },
+            uk: { name: "UK", scores: [100, 100, 100, 60, 100, 60, 60], color: "#74b9ff", region: "western-europe" },
+            italy: { name: "Italy", scores: [60, 100, 60, 80, 60, 100, 60], color: "#00b894", region: "western-europe" },
+            germany: { name: "Germany", scores: [60, 60, 80, 80, 60, 100, 100], color: "#e84393", region: "western-europe" },
+            france: { name: "France", scores: [60, 60, 60, 60, 100, 100, 100], color: "#00cec9", region: "western-europe" },
+            "saudi-arabia": { name: "Saudi Arabia", scores: [100, 60, 80, 100, 60, 60, 80], color: "#a29bfe", region: "regional" },
+            china: { name: "China", scores: [60, 100, 80, 60, 80, 80, 60], color: "#ff7675", region: "asia" }
+        };
+
+        const regionalGroups = {
+            "north-america": ["usa", "canada"],
+            "regional": ["saudi-arabia", "qatar", "oman", "bahrain", "kuwait", "india", "egypt"],
+            "western-europe": ["france", "uk", "italy", "germany", "spain", "netherlands"],
+            "eastern-europe": ["poland", "romania", "armenia", "kazakhstan", "uzbekistan", "russia"],
+            "asia": ["china", "south-korea", "japan"]
+        };
+
+        let chart;
+        let activeMarkets = new Set();
+
+        function initChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Safety & Trust',
+                        'Hospitality & Inclusiveness',
+                        'Culture & Heritage',
+                        'Luxury & Experiences',
+                        'Natural Beauty & Recreation',
+                        'Connectivity & Accessibility',
+                        'Social Values & Modernity'
+                    ],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].dataset.label;
+                                },
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed.r}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            min: 0,
+                            ticks: {
+                                stepSize: 20,
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            pointLabels: {
+                                color: 'white',
+                                font: { size: 13, weight: '500' }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 800,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        function createMarketsList() {
+            const marketsList = document.getElementById('marketsList');
+            marketsList.innerHTML = '';
+
+            Object.entries(marketData).forEach(([key, market]) => {
+                const marketItem = document.createElement('div');
+                marketItem.className = 'market-item';
+                
+                marketItem.innerHTML = `
+                    <input type="checkbox" class="market-checkbox" id="market-${key}" data-market="${key}">
+                    <div class="market-color" style="background-color: ${market.color}"></div>
+                    <label class="market-name" for="market-${key}">${market.name}</label>
+                `;
+                
+                marketsList.appendChild(marketItem);
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const marketKey = this.dataset.market;
+                    if (this.checked) {
+                        activeMarkets.add(marketKey);
+                    } else {
+                        activeMarkets.delete(marketKey);
+                    }
+                    updateChart();
+                    updateStats();
+                });
+            });
+        }
+
+        function updateChart() {
+            const datasets = [];
+            
+            activeMarkets.forEach(marketKey => {
+                const market = marketData[marketKey];
+                datasets.push({
+                    label: market.name,
+                    data: market.scores,
+                    backgroundColor: market.color + '20',
+                    borderColor: market.color,
+                    borderWidth: 2,
+                    pointBackgroundColor: market.color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                });
+            });
+
+            chart.data.datasets = datasets;
+            chart.update('active');
+            
+            document.getElementById('activeCount').textContent = activeMarkets.size;
+        }
+
+        function updateStats() {
+            if (activeMarkets.size === 0) {
+                document.getElementById('avgScore').textContent = '0';
+                document.getElementById('strongestTheme').textContent = '-';
+                return;
+            }
+
+            // Calculate average score across all themes and markets
+            let totalScore = 0;
+            let themeScores = [0, 0, 0, 0, 0, 0, 0];
+            
+            activeMarkets.forEach(marketKey => {
+                const scores = marketData[marketKey].scores;
+                scores.forEach((score, index) => {
+                    totalScore += score;
+                    themeScores[index] += score;
+                });
+            });
+
+            const avgScore = Math.round(totalScore / (activeMarkets.size * 7));
+            document.getElementById('avgScore').textContent = avgScore;
+
+            // Find strongest theme
+            const themeNames = ['Safety', 'Hospitality', 'Culture', 'Luxury', 'Nature', 'Connectivity', 'Social'];
+            const avgThemeScores = themeScores.map(score => score / activeMarkets.size);
+            const strongestIndex = avgThemeScores.indexOf(Math.max(...avgThemeScores));
+            document.getElementById('strongestTheme').textContent = themeNames[strongestIndex];
+        }
+
+        // Event listeners for bulk controls
+        document.getElementById('selectAll').addEventListener('click', function() {
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
+                checkbox.checked = true;
+                activeMarkets.add(checkbox.dataset.market);
+            });
+            updateChart();
+            updateStats();
+        });
+
+        document.getElementById('deselectAll').addEventListener('click', function() {
+            document.querySelectorAll('.market-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            activeMarkets.clear();
+            updateChart();
+            updateStats();
+        });
+
+        // Regional group controls
+        document.querySelectorAll('.regional-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const region = this.dataset.region;
+                const markets = regionalGroups[region];
+                
+                // Toggle regional selection
+                const isActive = this.classList.contains('active');
+                
+                if (isActive) {
+                    // Deselect region
+                    this.classList.remove('active');
+                    markets.forEach(marketKey => {
+                        const checkbox = document.getElementById(`market-${marketKey}`);
+                        if (checkbox) {
+                            checkbox.checked = false;
+                            activeMarkets.delete(marketKey);
+                        }
+                    });
+                } else {
+                    // Select region
+                    this.classList.add('active');
+                    markets.forEach(marketKey => {
+                        const checkbox = document.getElementById(`market-${marketKey}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            activeMarkets.add(marketKey);
+                        }
+                    });
+                }
+                
+                updateChart();
+                updateStats();
+            });
+        });
+
+        // Regional Chart Variables
+        let regionalChart;
+        let activeRegions = new Set(['north-america', 'regional', 'western-europe', 'eastern-europe', 'asia']);
+
+        // Regional Colors
+        const regionalColors = {
+            'north-america': '#f9ca24',
+            'regional': '#ff6b6b', 
+            'western-europe': '#4ecdc4',
+            'eastern-europe': '#a0e7e5',
+            'asia': '#ffeaa7'
+        };
+
+        // Calculate regional averages
+        function calculateRegionalAverages() {
+            const regionalAverages = {};
+            
+            Object.entries(regionalGroups).forEach(([regionKey, markets]) => {
+                const regionScores = [0, 0, 0, 0, 0, 0, 0];
+                let marketCount = 0;
+                
+                markets.forEach(marketKey => {
+                    if (marketData[marketKey]) {
+                        marketData[marketKey].scores.forEach((score, index) => {
+                            regionScores[index] += score;
+                        });
+                        marketCount++;
+                    }
+                });
+                
+                // Calculate averages
+                const avgScores = regionScores.map(score => Math.round(score / marketCount));
+                regionalAverages[regionKey] = {
+                    name: regionKey.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+                    scores: avgScores,
+                    color: regionalColors[regionKey]
+                };
+            });
+            
+            return regionalAverages;
+        }
+
+        function initRegionalChart() {
+            const ctx = document.getElementById('regionalChart').getContext('2d');
+            
+            regionalChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Safety & Trust',
+                        'Hospitality & Inclusiveness',
+                        'Culture & Heritage',
+                        'Luxury & Experiences',
+                        'Natural Beauty & Recreation',
+                        'Connectivity & Accessibility',
+                        'Social Values & Modernity'
+                    ],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].dataset.label + ' (Regional Average)';
+                                },
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed.r}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            min: 0,
+                            ticks: {
+                                stepSize: 20,
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            pointLabels: {
+                                color: 'white',
+                                font: { size: 13, weight: '500' }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 800,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        intersect: false
+                    }
+                }
+            });
+            
+            updateRegionalChart();
+        }
+
+        function updateRegionalChart() {
+            const regionalAverages = calculateRegionalAverages();
+            const datasets = [];
+            
+            activeRegions.forEach(regionKey => {
+                const region = regionalAverages[regionKey];
+                if (region) {
+                    datasets.push({
+                        label: region.name,
+                        data: region.scores,
+                        backgroundColor: region.color + '20',
+                        borderColor: region.color,
+                        borderWidth: 3,
+                        pointBackgroundColor: region.color,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    });
+                }
+            });
+
+            regionalChart.data.datasets = datasets;
+            regionalChart.update('active');
+            
+            updateRegionalStats(regionalAverages);
+        }
+
+        function updateRegionalStats(regionalAverages) {
+            if (activeRegions.size === 0) {
+                document.getElementById('topRegion').textContent = '-';
+                document.getElementById('topThemeRegional').textContent = '-';
+                document.getElementById('avgRegionalScore').textContent = '0';
+                return;
+            }
+
+            // Calculate overall averages and find strongest region/theme
+            let totalScore = 0;
+            let themeScores = [0, 0, 0, 0, 0, 0, 0];
+            let regionTotals = {};
+            
+            activeRegions.forEach(regionKey => {
+                const region = regionalAverages[regionKey];
+                if (region) {
+                    let regionTotal = 0;
+                    region.scores.forEach((score, index) => {
+                        totalScore += score;
+                        themeScores[index] += score;
+                        regionTotal += score;
+                    });
+                    regionTotals[regionKey] = Math.round(regionTotal / 7);
+                }
+            });
+
+            // Overall average
+            const overallAvg = Math.round(totalScore / (activeRegions.size * 7));
+            document.getElementById('avgRegionalScore').textContent = overallAvg;
+
+            // Strongest region
+            const strongestRegionKey = Object.keys(regionTotals).reduce((a, b) => 
+                regionTotals[a] > regionTotals[b] ? a : b
+            );
+            const strongestRegionName = regionalAverages[strongestRegionKey]?.name || '-';
+            document.getElementById('topRegion').textContent = strongestRegionName;
+
+            // Strongest theme
+            const themeNames = ['Safety', 'Hospitality', 'Culture', 'Luxury', 'Nature', 'Connectivity', 'Social'];
+            const avgThemeScores = themeScores.map(score => score / activeRegions.size);
+            const strongestThemeIndex = avgThemeScores.indexOf(Math.max(...avgThemeScores));
+            document.getElementById('topThemeRegional').textContent = themeNames[strongestThemeIndex];
+        }
+
+        // Regional toggle controls
+        document.querySelectorAll('.regional-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const region = this.dataset.region;
+                
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    activeRegions.delete(region);
+                } else {
+                    this.classList.add('active');
+                    activeRegions.add(region);
+                }
+                
+                updateRegionalChart();
+            });
+        });
+
+        // Initialize both charts
+        initChart();
+        initRegionalChart();
+        createMarketsList();
+        updateStats();
+    </script>
+</body>
+</html>
